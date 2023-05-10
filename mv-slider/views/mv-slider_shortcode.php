@@ -1,10 +1,11 @@
-<h3><?php echo ( ! empty ( $content ) ) ? esc_html( $content ) : esc_html( MV_Slider_Settings::$options['mv_slider_title'] ); ?></h3>
-<div class="mv-slider flexslider <?php echo ( isset( MV_Slider_Settings::$options['mv_slider_style'] ) ) ? esc_attr( MV_Slider_Settings::$options['mv_slider_style'] ) : 'style-1'; ?>">
+<h3><?php echo ( ! empty ( $content ) ) ? esc_html( $content ) : esc_html( $title ); ?></h3>
+<div class="mv-slider flexslider <?php echo ( ! empty ( $style ) ) ? $style : 'style-1' ?>">
+
     <ul class="slides">
-    <?php 
+    <?php
     
     $args = array(
-        'post_type' => 'mv-slider',
+        'post_type' => MV_SLIDER_POST_TYPE,
         'post_status'   => 'publish',
         'post__in'  => $id,
         'orderby' => $orderby
@@ -24,7 +25,9 @@
         if( has_post_thumbnail() ){
             the_post_thumbnail( 'full', array( 'class' => 'img-fluid' ) );
         }else{
-            echo mv_slider_get_placeholder_image();
+            ?>
+            <img src="<?php echo MV_SLIDER_URL; ?>/assets/images/default.jpg" class='img-fluid wp-post-image' />
+            <?php
         }
          
         ?>

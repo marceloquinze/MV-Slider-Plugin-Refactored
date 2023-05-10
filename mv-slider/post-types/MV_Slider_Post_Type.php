@@ -41,6 +41,13 @@ if( !class_exists( 'MV_Slider_Post_Type') ){
         }
 
         public function mv_slider_cpt_columns( $columns ){
+            // $columns = array(
+            //      'cb' => $columns['cb'],
+            //     'title' => __( 'Title' ),
+            //     'mv_slider_link_text' => esc_html__( 'Link Text', 'mv-slider' ),
+            //     'mv_slider_link_url' => esc_html__( 'Link URL', 'mv-slider' ),
+            //     'date' => __( 'Date' ),
+            // );
             $columns['mv_slider_link_text'] = esc_html__( 'Link Text', 'mv-slider' );
             $columns['mv_slider_link_url'] = esc_html__( 'Link URL', 'mv-slider' );
             return $columns;

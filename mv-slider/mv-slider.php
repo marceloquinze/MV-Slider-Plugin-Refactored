@@ -33,50 +33,83 @@ if( ! defined( 'ABSPATH') ){
 
 if( ! class_exists( 'MV_Slider' ) ){
     class MV_Slider{
+
+        /**
+         * Constructor
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         function __construct(){
+            // Load plugin text domain and define constants
             $this->define_constants();
-
             $this->load_textdomain();
+            
+            // Load plugin dependencies
+            require_once( MV_SLIDER_PATH . 'post-types/MV_Slider_Post_Type.php' );
+            new MV_Slider_Post_Type();
+            
+            require_once( MV_SLIDER_PATH . 'settings/MV_Slider_Options.php' );
+            $options = MV_Slider_Options::get_instance();
+            
+            require_once( MV_SLIDER_PATH . 'settings/MV_Slider_Settings.php' );
+            new MV_Slider_Settings( $options );
+            
+            require_once( MV_SLIDER_PATH . 'shortcodes/MV_Slider_Shortcode.php' );
+            new MV_Slider_Shortcode();
 
-            require_once( MV_SLIDER_PATH . 'functions/functions.php' );
-
-            add_action( 'admin_menu', array( $this, 'add_menu' ) );
-
-            require_once( MV_SLIDER_PATH . 'post-types/class.mv-slider-cpt.php' );
-            $MV_Slider_Post_Type = new MV_Slider_Post_Type();
-
-            require_once( MV_SLIDER_PATH . 'class.mv-slider-settings.php' );
-            $MV_Slider_Settings = new MV_Slider_Settings();
-
-            require_once( MV_SLIDER_PATH . 'shortcodes/class.mv-slider-shortcode.php' );
-            $MV_Slider_Shortcode = new MV_Slider_Shortcode();
-
+            // Register scripts
             add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ), 999 );
             add_action( 'admin_enqueue_scripts', array( $this, 'register_admin_scripts') );
         }
 
+        /**
+         * Define constants
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         public function define_constants(){
             define( 'MV_SLIDER_PATH', plugin_dir_path( __FILE__ ) );
             define( 'MV_SLIDER_URL', plugin_dir_url( __FILE__ ) );
             define( 'MV_SLIDER_VERSION', '1.0.0' );
+            define( 'MV_SLIDER_POST_TYPE', 'mv-slider' );
         }
 
+        /**
+         * Activate plugin
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         public static function activate(){
             update_option( 'rewrite_rules', '' );
         }
 
+        /**
+         * Deactivate plugin
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         public static function deactivate(){
             flush_rewrite_rules();
-            unregister_post_type( 'mv-slider' );
+            unregister_post_type( MV_SLIDER_POST_TYPE );
         }
 
+        /**
+         * Uninstall plugin
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         public static function uninstall(){
 
             delete_option( 'mv_slider_options' );
 
             $posts = get_posts(
                 array(
-                    'post_type' => 'mv-slider',
+                    'post_type' => MV_SLIDER_POST_TYPE,
                     'number_posts'  => -1,
                     'post_status'   => 'any'
                 )
@@ -87,6 +120,12 @@ if( ! class_exists( 'MV_Slider' ) ){
             }
         }
 
+        /**
+         * Load plugin text domain
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         public function load_textdomain(){
             load_plugin_textdomain(
                 'mv-slider',
@@ -95,58 +134,24 @@ if( ! class_exists( 'MV_Slider' ) ){
             );
         }
 
-        public function add_menu(){
-            add_menu_page(
-                esc_html__( 'MV Slider Options', 'mv-slider' ),
-                'MV Slider',
-                'manage_options',
-                'mv_slider_admin',
-                array( $this, 'mv_slider_settings_page' ),
-                'dashicons-images-alt2'
-            );
-
-            add_submenu_page(
-                'mv_slider_admin',
-                esc_html__( 'Manage Slides', 'mv-slider' ),
-                esc_html__( 'Manage Slides', 'mv-slider' ),
-                'manage_options',
-                'edit.php?post_type=mv-slider',
-                null,
-                null
-            );
-
-            add_submenu_page(
-                'mv_slider_admin',
-                esc_html__( 'Add New Slide', 'mv-slider' ),
-                esc_html__( 'Add New Slide', 'mv-slider' ),
-                'manage_options',
-                'post-new.php?post_type=mv-slider',
-                null,
-                null
-            );
-
-        }
-
-        public function mv_slider_settings_page(){
-            if( ! current_user_can( 'manage_options' ) ){
-                return;
-            }
-
-            if( isset( $_GET['settings-updated'] ) ){
-                add_settings_error( 'mv_slider_options', 'mv_slider_message', esc_html__( 'Settings Saved', 'mv-slider' ), 'success' );
-            }
-            
-            settings_errors( 'mv_slider_options' );
-
-            require( MV_SLIDER_PATH . 'views/settings-page.php' );
-        }
-
+        /**
+         * Register scripts
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         public function register_scripts(){
-            wp_register_script( 'mv-slider-main-jq', MV_SLIDER_URL . 'vendor/flexslider/jquery.flexslider-min.js', array( 'jquery' ), MV_SLIDER_VERSION, true );
-            wp_register_style( 'mv-slider-main-css', MV_SLIDER_URL . 'vendor/flexslider/flexslider.css', array(), MV_SLIDER_VERSION, 'all' );
+            wp_register_script( 'mv-slider-main-jq', MV_SLIDER_URL . 'assets/vendor/flexslider/jquery.flexslider-min.js', array( 'jquery' ), MV_SLIDER_VERSION, true );
+            wp_register_style( 'mv-slider-main-css', MV_SLIDER_URL . 'assets/vendor/flexslider/flexslider.css', array(), MV_SLIDER_VERSION, 'all' );
             wp_register_style( 'mv-slider-style-css', MV_SLIDER_URL . 'assets/css/frontend.css', array(), MV_SLIDER_VERSION, 'all' );
         }
 
+        /**
+         * Register admin scripts
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         public function register_admin_scripts(){
             global $typenow;
             if( $typenow == 'mv-slider'){
@@ -157,6 +162,7 @@ if( ! class_exists( 'MV_Slider' ) ){
     }
 }
 
+// Instantiate plugin
 if( class_exists( 'MV_Slider' ) ){
     register_activation_hook( __FILE__, array( 'MV_Slider', 'activate' ) );
     register_deactivation_hook( __FILE__, array( 'MV_Slider', 'deactivate' ) );

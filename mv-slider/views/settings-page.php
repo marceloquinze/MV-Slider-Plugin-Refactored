@@ -10,10 +10,10 @@
     <form action="options.php" method="post">
     <?php 
         if( $active_tab == 'main_options' ){
-            settings_fields( 'mv_slider_group' );
+            settings_fields( 'mv_slider_options' );
             do_settings_sections( 'mv_slider_page1' );
         }else{
-            settings_fields( 'mv_slider_group' );
+            settings_fields( 'mv_slider_options' );
             do_settings_sections( 'mv_slider_page2' );
         }
         submit_button( esc_html__( 'Save Settings', 'mv-slider' ) );
