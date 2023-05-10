@@ -31,6 +31,15 @@ if( ! defined( 'ABSPATH') ){
     exit;
 }
 
+// Load Composer dependencies
+require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
+
+// Load plugin classes
+use MV_Slider\post_types\MV_Slider_Post_Type;
+use MV_Slider\settings\MV_Slider_Options;
+use MV_Slider\settings\MV_Slider_Settings;
+use MV_Slider\shortcodes\MV_Slider_Shortcode;
+
 if( ! class_exists( 'MV_Slider' ) ){
     class MV_Slider{
 
@@ -46,16 +55,10 @@ if( ! class_exists( 'MV_Slider' ) ){
             $this->load_textdomain();
             
             // Load plugin dependencies
-            require_once( MV_SLIDER_PATH . 'post-types/MV_Slider_Post_Type.php' );
+            // They are being loaded by Composer
             new MV_Slider_Post_Type();
-            
-            require_once( MV_SLIDER_PATH . 'settings/MV_Slider_Options.php' );
             $options = MV_Slider_Options::get_instance();
-            
-            require_once( MV_SLIDER_PATH . 'settings/MV_Slider_Settings.php' );
             new MV_Slider_Settings( $options );
-            
-            require_once( MV_SLIDER_PATH . 'shortcodes/MV_Slider_Shortcode.php' );
             new MV_Slider_Shortcode();
 
             // Register scripts
@@ -141,9 +144,9 @@ if( ! class_exists( 'MV_Slider' ) ){
          * @access public
          */
         public function register_scripts(){
-            wp_register_script( 'mv-slider-main-jq', MV_SLIDER_URL . 'assets/vendor/flexslider/jquery.flexslider-min.js', array( 'jquery' ), MV_SLIDER_VERSION, true );
-            wp_register_style( 'mv-slider-main-css', MV_SLIDER_URL . 'assets/vendor/flexslider/flexslider.css', array(), MV_SLIDER_VERSION, 'all' );
-            wp_register_style( 'mv-slider-style-css', MV_SLIDER_URL . 'assets/css/frontend.css', array(), MV_SLIDER_VERSION, 'all' );
+            wp_register_script( 'mv-slider-main-jq', MV_SLIDER_URL . 'src/assets/vendor/flexslider/jquery.flexslider-min.js', array( 'jquery' ), MV_SLIDER_VERSION, true );
+            wp_register_style( 'mv-slider-main-css', MV_SLIDER_URL . 'src/assets/vendor/flexslider/flexslider.css', array(), MV_SLIDER_VERSION, 'all' );
+            wp_register_style( 'mv-slider-style-css', MV_SLIDER_URL . 'src/assets/css/frontend.css', array(), MV_SLIDER_VERSION, 'all' );
         }
 
         /**

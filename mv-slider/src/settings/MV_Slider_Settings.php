@@ -1,5 +1,7 @@
 <?php 
 
+namespace MV_Slider\settings;
+
 if( ! class_exists( 'MV_Slider_Settings' )){
     class MV_Slider_Settings{
 
@@ -256,7 +258,7 @@ if( ! class_exists( 'MV_Slider_Settings' )){
 
             settings_errors( 'mv_slider_options' );
 
-            require( MV_SLIDER_PATH . 'views/settings-page.php' );
+            require( MV_SLIDER_PATH . 'src/views/settings-page.php' );
         }
 
     }

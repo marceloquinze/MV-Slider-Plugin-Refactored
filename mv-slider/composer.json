@@ -1,0 +1,17 @@
+{
+    "name": "marcelovieira/mv-slider",
+    "description": "MV Slider Plugin",
+    "type": "wordpress-plugin",
+    "authors": [
+        {
+            "name": "Marcelo Vieira",
+            "email": "marceloquinze@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MV_Slider\\": "src"
+        }
+    },
+    "require": {}
+}

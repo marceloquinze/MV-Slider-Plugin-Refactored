@@ -1,5 +1,7 @@
 <?php
 
+namespace MV_Slider\settings;
+
 class MV_Slider_Options
 {
     private static $instance;

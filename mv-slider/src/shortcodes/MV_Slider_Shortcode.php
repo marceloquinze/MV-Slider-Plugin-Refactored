@@ -1,5 +1,9 @@
 <?php 
 
+namespace MV_Slider\shortcodes;
+
+use MV_Slider\settings\MV_Slider_Options;
+
 if( ! class_exists('MV_Slider_Shortcode')){
     class MV_Slider_Shortcode{
 
@@ -54,7 +58,7 @@ if( ! class_exists('MV_Slider_Shortcode')){
                 wp_enqueue_script( 'mv-slider-main-jq' );
                 wp_enqueue_style( 'mv-slider-main-css' );
                 wp_enqueue_style( 'mv-slider-style-css' );
-                wp_enqueue_script( 'mv-slider-options-js', MV_SLIDER_URL . 'assets/vendor/flexslider/flexslider.js', array( 'jquery' ), MV_SLIDER_VERSION, true );
+                wp_enqueue_script( 'mv-slider-options-js', MV_SLIDER_URL . 'src/assets/vendor/flexslider/flexslider.js', array( 'jquery' ), MV_SLIDER_VERSION, true );
                 
                 // Bullets are injected via JS so we need to localize the script
                 wp_localize_script( 'mv-slider-options-js', 'SLIDER_OPTIONS', array(
@@ -62,7 +66,7 @@ if( ! class_exists('MV_Slider_Shortcode')){
                     ) );
 
                 // Finally, render the slider
-                require( MV_SLIDER_PATH . 'views/mv-slider_shortcode.php' );
+                require( MV_SLIDER_PATH . 'src/views/mv-slider_shortcode.php' );
 
             // End output buffering and return its contents
             return ob_get_clean();

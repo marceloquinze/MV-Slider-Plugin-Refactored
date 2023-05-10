@@ -26,7 +26,7 @@
             the_post_thumbnail( 'full', array( 'class' => 'img-fluid' ) );
         }else{
             ?>
-            <img src="<?php echo MV_SLIDER_URL; ?>/assets/images/default.jpg" class='img-fluid wp-post-image' />
+            <img src="<?php echo MV_SLIDER_URL; ?>/src/assets/images/default.jpg" class='img-fluid wp-post-image' />
             <?php
         }
          
