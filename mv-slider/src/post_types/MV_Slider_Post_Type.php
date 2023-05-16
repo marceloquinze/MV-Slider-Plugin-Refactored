@@ -4,7 +4,14 @@ namespace MV_Slider\post_types;
 
 if( !class_exists( 'MV_Slider_Post_Type') ){
     class MV_Slider_Post_Type{
-        function __construct(){
+
+        /**
+         * Constructor
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
+        public function __construct(){
             add_action( 'init', array( $this, 'create_post_type' ) );
             add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
             add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
@@ -13,6 +20,12 @@ if( !class_exists( 'MV_Slider_Post_Type') ){
             add_filter( 'manage_edit-mv-slider_sortable_columns', array( $this, 'mv_slider_sortable_columns' ) );
         }
 
+        /**
+         * Create post type
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         public function create_post_type(){
             register_post_type(
                 MV_SLIDER_POST_TYPE,
@@ -42,6 +55,13 @@ if( !class_exists( 'MV_Slider_Post_Type') ){
             );
         }
 
+        /**
+         * Manage plugin table columns
+         * @return void
+         * @since 1.0.0
+         * @access public
+         * @param array $columns  Columns array
+         */
         public function mv_slider_cpt_columns( $columns ){
             $columns = array(
                 'cb' => $columns['cb'],
@@ -50,11 +70,17 @@ if( !class_exists( 'MV_Slider_Post_Type') ){
                 'mv_slider_link_url' => esc_html__( 'Link URL', 'mv-slider' ),
                 'date' => __( 'Date', 'mv-slider' ),
             );
-            // $columns['mv_slider_link_text'] = esc_html__( 'Link Text', 'mv-slider' );
-            // $columns['mv_slider_link_url'] = esc_html__( 'Link URL', 'mv-slider' );
             return $columns;
         }
 
+        /**
+         * Manage plugin table custom columns content
+         * @return void
+         * @since 1.0.0
+         * @access public
+         * @param string $column  Column name
+         * @param int $post_id  Post ID
+         */
         public function mv_slider_custom_columns( $column, $post_id ){
             switch( $column ){
                 case 'mv_slider_link_text':
@@ -66,11 +92,25 @@ if( !class_exists( 'MV_Slider_Post_Type') ){
             }
         }
 
+        /**
+         * Make plugin table columns sortable
+         * @return void
+         * @since 1.0.0
+         * @access public
+         * @param array $columns  Columns array
+         */
         public function mv_slider_sortable_columns( $columns ){
             $columns['mv_slider_link_text'] = 'mv_slider_link_text';
+            $columns['mv_slider_link_url'] = 'mv_slider_link_url';
             return $columns;
         }
 
+        /**
+         * Add meta boxes
+         * @return void
+         * @since 1.0.0
+         * @access public
+         */
         public function add_meta_boxes(){
             add_meta_box(
                 'mv_slider_meta_box',
@@ -82,22 +122,43 @@ if( !class_exists( 'MV_Slider_Post_Type') ){
             );
         }
 
+        /**
+         * Add inner meta boxes view
+         * @return void
+         * @since 1.0.0
+         * @access public
+         * @param object $post  Post object to be passed to the view
+         */
         public function add_inner_meta_boxes( $post ){
+            $meta = get_post_meta( $post->ID );
+            $link_text = get_post_meta( $post->ID, 'mv_slider_link_text', true );
+            $link_url = get_post_meta( $post->ID, 'mv_slider_link_url', true );
             require_once( MV_SLIDER_PATH . 'src/views/mv-slider_metabox.php' );
         }
 
+        /**
+         * Save post
+         * @return void
+         * @since 1.0.0
+         * @access public
+         * @param int $post_id  Post ID to be saved
+         */
         public function save_post( $post_id ){
+            // A series of guard clauses to make sure we are saving the right data
+            // 1. Check if nonce is set
             if( isset( $_POST['mv_slider_nonce'] ) ){
                 if( ! wp_verify_nonce( $_POST['mv_slider_nonce'], 'mv_slider_nonce' ) ){
                     return;
                 }
             }
 
+            // 2. Check if we're doing autosave
             if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ){
                 return;
             }
 
-            if( isset( $_POST['post_type'] ) && $_POST['post_type'] === MV_SLIDER_POST_TYPE ){
+            // 3. Check if user has permissions to save data
+            if( isset( $_POST['post_type'] ) && $_POST['post_type'] === 'mv-slider' ){
                 if( ! current_user_can( 'edit_page', $post_id ) ){
                     return;
                 }elseif( ! current_user_can( 'edit_post', $post_id ) ){
@@ -105,25 +166,34 @@ if( !class_exists( 'MV_Slider_Post_Type') ){
                 }
             }
 
-            if( isset( $_POST['action'] ) && $_POST['action'] == 'editpost' ){
-                $old_link_text = get_post_meta( $post_id, 'mv_slider_link_text', true );
-                $new_link_text = $_POST['mv_slider_link_text'];
-                $old_link_url = get_post_meta( $post_id, 'mv_slider_link_url', true );
-                $new_link_url = $_POST['mv_slider_link_url'];
-
-                if( empty( $new_link_text )){
-                    update_post_meta( $post_id, 'mv_slider_link_text', esc_html__( 'Add some text', 'mv-slider' ) );
-                }else{
-                    update_post_meta( $post_id, 'mv_slider_link_text', sanitize_text_field( $new_link_text ), $old_link_text );
+            // Now we can actually save the data
+            // First, check if the form is sending the right POST action
+            if ( isset( $_POST['action'] ) && $_POST['action'] == 'editpost' ) {
+                // Populate an array with the fields we want to save
+                $fields = array(
+                    'mv_slider_link_text' => array(
+                        'old' => get_post_meta( $post_id, 'mv_slider_link_text', true ),
+                        'new' => $_POST['mv_slider_link_text'],
+                        'default' => esc_html__( 'Add some text', 'mv-slider' ),
+                    ),
+                    'mv_slider_link_url' => array(
+                        'old' => get_post_meta( $post_id, 'mv_slider_link_url', true ),
+                        'new' => $_POST['mv_slider_link_url'],
+                        'default' => '#',
+                    ),
+                );
+            
+                // Loop through the array and save the data
+                foreach ( $fields as $field => $data ) {
+                    $new_value = sanitize_text_field( $data['new'] );
+                    $old_value = $data['old'];
+            
+                    if ( empty( $new_value ) ) {
+                        $new_value = $data['default'];
+                    }
+            
+                    update_post_meta( $post_id, $field, $new_value, $old_value );
                 }
-
-                if( empty( $new_link_url )){
-                    update_post_meta( $post_id, 'mv_slider_link_url', '#' );
-                }else{
-                    update_post_meta( $post_id, 'mv_slider_link_url', sanitize_text_field( $new_link_url ), $old_link_url );
-                }
-                
-                
             }
         }
 
